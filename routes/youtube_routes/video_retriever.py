@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 import requests
 from config import settings
 from db import neo4jService
-from entities.video import Video
+from entities.youtube_entities.video import Video
 import json
 
 
@@ -33,7 +33,9 @@ async def search_video_by_name(channelId: str,max_results : int = 5):
             video={}
         return [Video(**item) for item in videos]
     except Exception as e:
-        raise e
+        raise HTTPException(status_code=500, detail={"error":str(e)})
+
+
 
 @router.post("/video/insert",tags=["video"])
 def insert_video(videos: list[Video],channelId:str):
@@ -55,4 +57,4 @@ def insert_video(videos: list[Video],channelId:str):
         channelId=channelId)
         return {"msg": "Videos nodes created", "videos": list_of_entities}
     except Exception as e:
-        raise e
+        raise HTTPException(status_code=500, detail={"error":str(e)})

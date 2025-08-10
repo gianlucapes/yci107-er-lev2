@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/app
     env_file:
-      - .env
+      - .env_docker
     restart: always
     networks:
       - yci107_network

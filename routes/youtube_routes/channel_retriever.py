@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,HTTPException
 import requests
 from config import settings
 from db import neo4jService
-from entities.youtube_channel import YoutubeChannel
+from entities.youtube_entities.youtube_channel import YoutubeChannel
 import json
 
 
@@ -31,7 +31,8 @@ async def search_channel_by_name(name: str):
             channel={}
         return [YoutubeChannel(**item) for item in channels]
     except Exception as e:
-        raise e
+        raise HTTPException(status_code=500, detail={"error":str(e)})
+
 
 @router.post("/youtubeChannel/insert",tags=["youtube channel"])
 def insert_youtube_channel(youtubeChannel: YoutubeChannel):
@@ -47,4 +48,5 @@ def insert_youtube_channel(youtubeChannel: YoutubeChannel):
         """,youtubeChannel.model_dump())
         return {"msg": "Youtube Channel created", "youtubeChannel": youtubeChannel}
     except Exception as e:
-        raise e
+        raise HTTPException(status_code=500, detail={"error":str(e)})
+

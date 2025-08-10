@@ -10,3 +10,5 @@ wheels/
 .venv
 .neo4jdb
 .env
+.env_docker
+.vscode

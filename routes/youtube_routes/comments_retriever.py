@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 import requests
 from config import settings
 from db import neo4jService
-from entities.comment import Comment
+from entities.youtube_entities.comment import Comment
 import json
 
 router = APIRouter()
@@ -32,7 +32,8 @@ async def get_comments_by_video_id(videoId:str,max_results : int = 5):
             comment = {}
         return [Comment(**item) for item in comments]
     except Exception as e:
-        raise e
+        raise HTTPException(status_code=500, detail={"error":str(e)})
+
 
 
 @router.post("/comments/insert",tags=["comments"])
@@ -55,6 +56,7 @@ async def insert_comment(comments:list[Comment]):
         MERGE (comment)-[:COMMENTED_IN]->(video)
         """
         ,list_of_entities=list_of_entities)
-        return {"msg": "Comment node created", "comment": list_of_entities}
+        return {"message": "Comment node created", "comment": list_of_entities}
     except Exception as e:
-        raise e
+                raise HTTPException(status_code=500, detail={"error":str(e)})
+

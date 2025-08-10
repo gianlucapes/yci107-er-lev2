@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict
-from routes.channel_retriever import router as channel_search_router
-from routes.video_retriever import router as video_router
-from routes.comments_retriever import router as comment_router
+from routes.youtube_routes.channel_retriever import router as channel_search_router
+from routes.youtube_routes.video_retriever import router as video_router
+from routes.youtube_routes.comments_retriever import router as comment_router
 from contextlib import asynccontextmanager
 
 app = FastAPI()
