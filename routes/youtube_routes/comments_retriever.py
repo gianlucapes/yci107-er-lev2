@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import requests
 from config import settings
-from db import neo4jService
 from entities.youtube_entities.comment import Comment
 import json
 
