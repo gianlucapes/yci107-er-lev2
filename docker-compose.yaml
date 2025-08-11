@@ -11,22 +11,6 @@ services:
     networks:
       - yci107_network
 
-  neo4j:
-    image: neo4j:community
-    container_name: neo4j-community
-    ports:
-      - "7474:7474"   # Web UI
-      - "7687:7687"   # Porta Bolt (driver)
-    environment:
-      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
-    volumes:
-      - ./.neo4jdb/data:/data
-      - ./.neo4jdb/conf:/conf
-      - ./.neo4jdb/logs:/logs
-    restart: unless-stopped
-    networks:
-      - yci107_network
-
 networks:
   yci107_network:
     external: true

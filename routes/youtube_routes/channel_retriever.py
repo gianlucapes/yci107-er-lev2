@@ -1,7 +1,6 @@
 from fastapi import APIRouter,HTTPException
 import requests
 from config import settings
-from db import neo4jService
 from entities.youtube_entities.youtube_channel import YoutubeChannel
 import json
 
@@ -30,23 +29,6 @@ async def search_channel_by_name(name: str):
             channels.append(channel)
             channel={}
         return [YoutubeChannel(**item) for item in channels]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail={"error":str(e)})
-
-
-@router.post("/youtubeChannel/insert",tags=["youtube channel"])
-def insert_youtube_channel(youtubeChannel: YoutubeChannel):
-    try:
-        neo4jService.run_query("""
-        MERGE (c:YoutubeChannel {
-            publishedAt: $publishedAt,
-            channelId: $channelId,
-            title: $title,
-            description: $description,
-            url: $url
-        })
-        """,youtubeChannel.model_dump())
-        return {"msg": "Youtube Channel created", "youtubeChannel": youtubeChannel}
     except Exception as e:
         raise HTTPException(status_code=500, detail={"error":str(e)})
 
