@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,status
 import requests
 from config import settings
 from entities.youtube_entities.comment import Comment
@@ -18,18 +18,21 @@ async def get_comments_by_video_id(videoId:str,max_results : int = 5):
     url = "https://www.googleapis.com/youtube/v3/commentThreads"
     try:
         response = requests.get(url, params=params)
-        comments = []
-        comment = {}
-        for item in response.json()["items"]:
-            comment["id"] = item["id"]
-            comment["videoId"] = item["snippet"]["videoId"]
-            comment["channelId"] = item["snippet"]["channelId"]
-            comment["publishedAt"] = item["snippet"]["topLevelComment"]["snippet"]["publishedAt"]
-            comment["textDisplay"] = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
-            comment["textOriginal"] = item["snippet"]["topLevelComment"]["snippet"]["textOriginal"]
-            comments.append(comment)
+        if response.status_code == status.HTTP_200_OK:
+            comments = []
             comment = {}
-        return [Comment(**item) for item in comments]
+            for item in response.json()["items"]:
+                comment["id"] = item["id"]
+                comment["videoId"] = item["snippet"]["videoId"]
+                comment["channelId"] = item["snippet"]["channelId"]
+                comment["publishedAt"] = item["snippet"]["topLevelComment"]["snippet"]["publishedAt"]
+                comment["textDisplay"] = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
+                comment["textOriginal"] = item["snippet"]["topLevelComment"]["snippet"]["textOriginal"]
+                comments.append(comment)
+                comment = {}
+            return [Comment(**item) for item in comments]
+        elif response.status_code == status.HTTP_403_FORBIDDEN:
+                raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail={"error":"The request cannot be completed because you have exceeded your quota"})
     except Exception as e:
-        raise HTTPException(status_code=500, detail={"error":str(e)})
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error":str(e)})
 

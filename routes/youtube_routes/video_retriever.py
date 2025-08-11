@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,status
 import requests
 from config import settings
 from entities.youtube_entities.video import Video
@@ -20,17 +20,20 @@ async def search_video_by_name(channelId: str,max_results : int = 5):
     url = "https://www.googleapis.com/youtube/v3/search"
     try:
         response = requests.get(url, params=params)
-        videos=[]
-        video={}
-        for item in response.json()["items"]:
-            video["videoId"] = item["id"]["videoId"]
-            video["publishedAt"] = item["snippet"]["publishedAt"]
-            video["title"] = item["snippet"]["title"]
-            video["description"]  = item["snippet"]["description"]
-            video["thumb_url"]  = item["snippet"]["thumbnails"]["high"]["url"]
-            videos.append(video)
+        if response.status_code == status.HTTP_200_OK:
+            videos=[]
             video={}
-        return [Video(**item) for item in videos]
+            for item in response.json()["items"]:
+                video["videoId"] = item["id"]["videoId"]
+                video["publishedAt"] = item["snippet"]["publishedAt"]
+                video["title"] = item["snippet"]["title"]
+                video["description"]  = item["snippet"]["description"]
+                video["thumb_url"]  = item["snippet"]["thumbnails"]["high"]["url"]
+                videos.append(video)
+                video={}
+            return [Video(**item) for item in videos]
+        elif response.status_code == status.HTTP_403_FORBIDDEN:
+            raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail={"error":"The request cannot be completed because you have exceeded your quota"})
     except Exception as e:
-        raise HTTPException(status_code=500, detail={"error":str(e)})
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error":str(e)})
 
